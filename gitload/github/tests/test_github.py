@@ -105,7 +105,7 @@ class TestSuccessRequest(unittest.TestCase):
 
         with open(filename, mode="w") as file:
             bytesno: int = file.write(text)
-            assert bytesno == len(text)
+            self.assertEqual(bytesno, len(text))
 
         archive_path: str = tempfile.mktemp()
         with zipfile.ZipFile(archive_path, mode="w") as archive:
@@ -120,10 +120,10 @@ class TestSuccessRequest(unittest.TestCase):
         )
         file_path = repo_path.joinpath(filename)
 
-        assert len(os.listdir(repo_path)) == 1
-        assert file_path.exists()
-        assert file_path.is_file()
-        assert file_path.read_text() == text
+        self.assertEqual(len(os.listdir(repo_path)), 1)
+        self.assertTrue(file_path.exists())
+        self.assertTrue(file_path.is_file())
+        self.assertEqual(file_path.read_text(), text)
 
 
 class TestFailureRequest(unittest.TestCase):
@@ -160,7 +160,7 @@ class TestInvalidZip(unittest.TestCase):
 
         with open(path, mode="w") as file:
             bytesno: int = file.write(text)
-            assert bytesno == len(text)
+            self.assertEqual(bytesno, len(text))
 
         urlretrieve.return_value = (path, None)
         with self.assertRaises(ValueError):
@@ -169,13 +169,13 @@ class TestInvalidZip(unittest.TestCase):
 
 class TestRemoveZip(unittest.TestCase):
     @unittest.mock.patch(URLRETRIEVE)
-    def test(self, urlretrieve: unittest.mock.MagicMock):
+    def test_valid_zip(self, urlretrieve: unittest.mock.MagicMock):
         file_path: str = tempfile.mktemp()
         text: str = "Hello, world!"
 
         with open(file_path, mode="w") as file:
             bytesno: int = file.write(text)
-            assert bytesno == len(text)
+            self.assertEqual(bytesno, len(text))
 
         archive_path: str = tempfile.mktemp()
         with zipfile.ZipFile(archive_path, mode="w") as archive:
@@ -184,7 +184,22 @@ class TestRemoveZip(unittest.TestCase):
         urlretrieve.return_value = (archive_path, None)
         github.download(user="syubogdanov", repo="gitload")
 
-        assert not os.path.exists(archive_path)
+        self.assertFalse(os.path.exists(archive_path))
+
+    @unittest.mock.patch(URLRETRIEVE)
+    def test_invalid_zip(self, urlretrieve: unittest.mock.MagicMock):
+        path: str = tempfile.mktemp()
+        text: str = "Hello, world!"
+
+        with open(path, mode="w") as file:
+            bytesno: int = file.write(text)
+            self.assertEqual(bytesno, len(text))
+
+        urlretrieve.return_value = (path, None)
+        with self.assertRaises(ValueError):
+            github.download(user="syubogdanov", repo="gitload")
+
+        self.assertFalse(os.path.exists(path))
 
 
 if __name__ == "__main__":
