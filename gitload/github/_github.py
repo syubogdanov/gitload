@@ -70,6 +70,7 @@ def download(user: str, repo: str) -> pathlib.Path:
         raise RuntimeError(f"An unexpected exception occurred: {exception}")
 
     if not zipfile.is_zipfile(archive_path):
+        os.remove(archive_path)
         raise ValueError("The downloaded file is not a zip archive")
 
     extract_path = pathlib.Path(tempfile.mkdtemp())
