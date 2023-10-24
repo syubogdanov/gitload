@@ -1,5 +1,5 @@
 <h2 align="center">
-    <img src="branding/logo/gitload.png" height="128px" width="128px">
+    <img src="https://raw.githubusercontent.com/syubogdanov/gitload/trunk/branding/logo/gitload.png" height="128px" width="128px">
 </h2>
 
 <p align="center">
